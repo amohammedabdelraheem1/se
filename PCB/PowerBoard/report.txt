@@ -1,0 +1,11 @@
+Plotted to 'C:\Users\FUTURE\Documents\KiCad\8.0\projects\PowerBoard\PowerBoardGerber\PowerBoard-F_Cu.gbr'.
+Plotted to 'C:\Users\FUTURE\Documents\KiCad\8.0\projects\PowerBoard\PowerBoardGerber\PowerBoard-B_Cu.gbr'.
+Plotted to 'C:\Users\FUTURE\Documents\KiCad\8.0\projects\PowerBoard\PowerBoardGerber\PowerBoard-F_Paste.gbr'.
+Plotted to 'C:\Users\FUTURE\Documents\KiCad\8.0\projects\PowerBoard\PowerBoardGerber\PowerBoard-B_Paste.gbr'.
+Plotted to 'C:\Users\FUTURE\Documents\KiCad\8.0\projects\PowerBoard\PowerBoardGerber\PowerBoard-F_Silkscreen.gbr'.
+Plotted to 'C:\Users\FUTURE\Documents\KiCad\8.0\projects\PowerBoard\PowerBoardGerber\PowerBoard-B_Silkscreen.gbr'.
+Plotted to 'C:\Users\FUTURE\Documents\KiCad\8.0\projects\PowerBoard\PowerBoardGerber\PowerBoard-F_Mask.gbr'.
+Plotted to 'C:\Users\FUTURE\Documents\KiCad\8.0\projects\PowerBoard\PowerBoardGerber\PowerBoard-B_Mask.gbr'.
+Plotted to 'C:\Users\FUTURE\Documents\KiCad\8.0\projects\PowerBoard\PowerBoardGerber\PowerBoard-Edge_Cuts.gbr'.
+Created Gerber job file 'C:\Users\FUTURE\Documents\KiCad\8.0\projects\PowerBoard\PowerBoardGerber\PowerBoard-job.gbrjob'.
+Info: Done.

@@ -1,0 +1,7 @@
+"Reference","Value","Datasheet","Footprint","Qty","DNP"
+"BMS_3S1,DC_DC_STEP_DWON_12V-5V1","~","","-- mixed values --","2",""
+"BT1,BT2,BT3","Battery_Cell","~","Battery:BatteryHolder_Keystone_1042_1x18650","3",""
+"D1","LED","","LED_THT:LED_D3.0mm","1",""
+"J1","OUT","~","TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal","1",""
+"J2","IN","~","TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal","1",""
+"R1","1K","~","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal","1",""
