@@ -14,15 +14,15 @@ extern "C" {
 
 /************************ Functions Declaration *****************************/
 // Initialize motor control pin and related hardware
-extern void DC_MOTOR_Init(void);
+void DC_MOTOR_Init(void);
 
-// Turn on the DC motor 
+// Turn on the DC motor
 // Typically sets the control pin to enable motor operation
-extern void DC_MOTOR_TurnOn(void);
+void DC_MOTOR_TurnOn(void);
 
 // Turn off the DC motor
 // Typically sets the control pin to disable motor operation
-extern void DC_MOTOR_TurnOff(void);
+void DC_MOTOR_TurnOff(void);
 
 // Preprocessor directive to close C++ compatibility block
 #ifdef __cplusplus

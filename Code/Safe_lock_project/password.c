@@ -1,7 +1,7 @@
 #include "buzzer.h"
 #include "password.h"
 #include "keypad.h"
-#include <arduino.h>
+
 uint8 eg_savedPass[PASSWORD_SIZE];
 uint8 eg_masterPass[PASSWORD_SIZE];
 uint8 eg_userPass[PASSWORD_SIZE];

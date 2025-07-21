@@ -2,6 +2,8 @@
 #include "password.h"
 #include "keypad.h"
 #include "buzzer.h"
+#include "door.h"
+#include "dc_motor.h"
 //********************************************************//
 #include <SPI.h>
 #include <MFRC522.h>
@@ -118,57 +120,58 @@ void Password_Update(uint8* ptrTopass, uint8 l_eeprom_first_byte) {
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200); // Initialize serial communications at 115200 bps
   Buzzer_Init();
   Password_Init();
   RTC_Init();
   CARD_Init();
   RFID_Init();
   CHECK_VALIDATION_Init();
+  Door_Init();
+  DC_MOTOR_Init();
+//  Lock_Init();
   // uncomment to set unit location manual
 
-  g_unit_location.Room = 1;
+  g_unit_location.Room = 5;
   g_unit_location.Floor = 1;
-  g_unit_location.Building = 5;
+  g_unit_location.Building = 2;
   UNIT_Update();
-
   UNIT_Init_Read();
   MODE_Init();
+  Door_Unlock();
+  delay(3000);
 }
 
 void loop() {
   CARD_Update();
+  //CardDataDisplay();
   RTC_Update();
+  //RealTimeDisplay();
   CHECK_VALIDATION_Update();
-  //testRoomWithBuzzer() ;
-  testValidationWithBuzzer();
+  Door_Update();
+  DoorDisplay();
   Buzzer_Update();
   //MODE_Update();
 }
 
-
 void CARD_Init(void) {
-  for (int i = 0; i < g_buffer_size; i++) {
-    g_buffer[i] = 0xff;
-  }
-  /*
-    g_Current_card.Type = OTHER;
-    g_Current_card.ID = 0x00;
-    g_Current_card.ExpirdDate.Minute = 0x00;
-    g_Current_card.ExpirdDate.Hour = 0x00;
-    g_Current_card.ExpirdDate.Day = 0x00;
-    g_Current_card.ExpirdDate.Month = 0x00;
-    g_Current_card.ExpirdDate.Year = 0x00;
-    g_Current_card.CardLocation.Room = 0xFF;
-    g_Current_card.CardLocation.Floor = 0xFF;
-    g_Current_card.CardLocation.Building = 0xFF;
-    g_Current_card.CRC = 0xFF;
-  */
+  g_Current_card.Type = OTHER;
+  g_Current_card.ID = 0x00;
+  g_Current_card.ExpirdDate.Minute = 0x00;
+  g_Current_card.ExpirdDate.Hour = 0x00;
+  g_Current_card.ExpirdDate.Day = 0x00;
+  g_Current_card.ExpirdDate.Month = 0x00;
+  g_Current_card.ExpirdDate.Year = 0x00;
+  g_Current_card.CardLocation.Room = 0xFF;
+  g_Current_card.CardLocation.Floor = 0xFF;
+  g_Current_card.CardLocation.Building = 0xFF;
+  g_Current_card.CRC = 0xFF;
+
 }
 void CARD_Update(void) {
   byte temp;
   /*****************read the  new card*********************/
-  //Serial.println("ReadCardHere");
+  Serial.println("ReadCardHere");
   CardRead();
   /*****************Extract data***************************/
   temp = g_buffer[TYPE_BYTE_NUM];
@@ -188,7 +191,7 @@ void CARD_Update(void) {
       case 0x34:
       g_Current_card.Type = BUILDING;
       break;
-        */
+    */
     case 0x2E:
       g_Current_card.Type = MASTER;
       break;
@@ -214,6 +217,7 @@ void CARD_Update(void) {
   g_Current_card.CardLocation.Building = g_buffer[BUILDING_BYTE_NUM];
   g_Current_card.CRC = g_buffer[CRC_BYTE_NUM];
   g_expired_unixtime = UnixTime();
+
 }
 void CHECK_VALIDATION_Init(void) {
   g_user_state = INVALID_STATE;
@@ -341,66 +345,7 @@ void CardRead(void) {
   Serial.print(F("Data in block "));
   Serial.print(blockAddr);
   Serial.println(F(":"));
-  // dump_byte_array(buffer, 16); Serial.println();
   Serial.println();
-  /*
-      // Authenticate using key B
-      Serial.println(F("Authenticating again using key B..."));
-      status = (MFRC522::StatusCode) mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_B, trailerBlock, &key, &(mfrc522.uid));
-      if (status != MFRC522::STATUS_OK) {
-          Serial.print(F("PCD_Authenticate() failed: "));
-          Serial.println(mfrc522.GetStatusCodeName(status));
-          return;
-      }
-
-      // Write data to the block
-      Serial.print(F("Writing data into block ")); Serial.print(blockAddr);
-      Serial.println(F(" ..."));
-      dump_byte_array(dataBlock, 16); Serial.println();
-      status = (MFRC522::StatusCode) mfrc522.MIFARE_Write(blockAddr, dataBlock, 16);
-      if (status != MFRC522::STATUS_OK) {
-          Serial.print(F("MIFARE_Write() failed: "));
-          Serial.println(mfrc522.GetStatusCodeName(status));
-      }
-      Serial.println();
-
-      // Read data from the block (again, should now be what we have written)
-      Serial.print(F("Reading data from block ")); Serial.print(blockAddr);
-      Serial.println(F(" ..."));
-      status = (MFRC522::StatusCode) mfrc522.MIFARE_Read(blockAddr, buffer, &size);
-      if (status != MFRC522::STATUS_OK) {
-          Serial.print(F("MIFARE_Read() failed: "));
-          Serial.println(mfrc522.GetStatusCodeName(status));
-      }
-      Serial.print(F("Data in block ")); Serial.print(blockAddr); Serial.println(F(":"));
-      dump_byte_array(buffer, 16); Serial.println();
-
-      // Check that data in block is what we have written
-      // by counting the number of bytes that are equal
-      Serial.println(F("Checking result..."));
-      byte count = 0;
-      for (byte i = 0; i < 16; i++) {
-          // Compare buffer (= what we've read) with dataBlock (= what we've written)
-          if (buffer[i] == dataBlock[i])
-              count++;
-      }
-      Serial.print(F("Number of bytes that match = ")); Serial.println(count);
-      if (count == 16) {
-          Serial.println(F("Success :-)"));
-      } else {
-          Serial.println(F("Failure, no match :-("));
-          Serial.println(F("  perhaps the write didn't work properly..."));
-      }
-      Serial.println();
-
-      // Dump the sector data
-      Serial.println(F("Current data in sector:"));
-      mfrc522.PICC_DumpMifareClassicSectorToSerial(&(mfrc522.uid), &key, sector);
-      Serial.println();
-  */
-  // Halt PICC
-  //mfrc522.PICC_HaltA();
-  // Stop encryption on PCD
   mfrc522.PCD_StopCrypto1();
 }
 void MODE_Init(void) {
@@ -615,7 +560,7 @@ void RTC_Init(void) {
   //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   // This line sets the RTC with an explicit date & time, for example to set
   // January 21, 2014 at 3am you would call:
-  rtc.adjust(DateTime(2024, 1, 1, 0, 0, 0));
+  //rtc.adjust(DateTime(2024, 1, 1, 0, 0, 0));
   //delay(3000); // wait for console opening
   //URTCLIB_WIRE.begin();
 }
@@ -642,90 +587,161 @@ unsigned long Time2Ulong(unsigned int days, byte h, byte m) {
   return ((days * 24UL + h) * 60 + m) * 60;
 }
 /**************************testing function*******************************/
-void testKeyWithBuzzer(void) {
-  uint8 key = KEYPAD_getPressedNewKey();
-  if (key != 255) {
-    for (uint8 i = 0; i < key; i++) {
-      digitalWrite(6, HIGH);
-      delay(100);
-      digitalWrite(6, LOW);
-      delay(200);
-    }
+const char* CardTypeToString(byte type) {
+  switch (type) {
+    case AUTHORISED: return "AUTHORISED";
+    case ROOM: return "ROOM";
+    case TIMESYNC: return "TIMESYNC";
+    // case FLOOR: return "FLOOR";
+    //case BUILDING: return "BUILDING";
+    case MASTER: return "MASTER";
+    case EMRGANCY: return "EMERGENCY";
+    case CLIENT: return "CLIENT";
+    default: return "OTHER";
   }
+}
+
+void CardDataDisplay() {
+  Serial.print("TYPE = ");
+  Serial.print(CardTypeToString(g_Current_card.Type));
+  Serial.print(" ID = ");
+  Serial.print(g_Current_card.ID);
+
+  Serial.print(" | DATE = ");
+  Serial.print(g_Current_card.ExpirdDate.Year);
+  Serial.print("-");
+  Serial.print(g_Current_card.ExpirdDate.Month);
+  Serial.print("-");
+  Serial.print(g_Current_card.ExpirdDate.Day);
+
+  Serial.print(" | TIME = ");
+  Serial.print(g_Current_card.ExpirdDate.Hour);
+  Serial.print(":");
+  Serial.println(g_Current_card.ExpirdDate.Minute);
+
+  Serial.print("Room: ");
+  Serial.print(g_Current_card.CardLocation.Room);
+  Serial.print(", Floor: ");
+  Serial.print(g_Current_card.CardLocation.Floor);
+  Serial.print(", Building: ");
+  Serial.println(g_Current_card.CardLocation.Building);
+
+  Serial.print("CRC = ");
+  Serial.println(g_Current_card.CRC);
+}
+void RealTimeDisplay() {
+  Serial.print("Current Time = ");
+  if (g_current_date.Hour < 10) Serial.print("0");
+  Serial.print(g_current_date.Hour);
+  Serial.print(":");
+  if (g_current_date.Minute < 10) Serial.print("0");
+  Serial.print(g_current_date.Minute);
+
+  Serial.print(" | Date = ");
+  if (g_current_date.Day < 10) Serial.print("0");
+  Serial.print(g_current_date.Day);
+  Serial.print("-");
+  if (g_current_date.Month < 10) Serial.print("0");
+  Serial.print(g_current_date.Month);
+  Serial.print("-");
+  Serial.print(g_current_date.Year + 2000); // Convert back to full year
+
+  Serial.print(" | Unix Time = ");
+  Serial.println(g_current_unixtime);
+}
+void DoorDisplay()
+{
+  Serial.print("Door = ");
+  Serial.print(Door_GetState());
   return;
 }
-void testRTCwithBuzzer(void) {
-
-  for (uint8 i = 0; i < g_current_date.Minute; i++) {
-    digitalWrite(6, HIGH);
-    delay(200);
-    digitalWrite(6, LOW);
-    delay(200);
-  }
-  delay(2000);
-  for (uint8 i = 0; i < g_current_date.Hour; i++) {
-    digitalWrite(6, HIGH);
-    delay(200);
-    digitalWrite(6, LOW);
-    delay(200);
-  }
-  delay(2000);
-  for (uint8 i = 0; i < g_current_date.Day; i++) {
-    digitalWrite(6, HIGH);
-    delay(200);
-    digitalWrite(6, LOW);
-    delay(200);
-  }
-  delay(2000);
-  for (uint8 i = 0; i < g_current_date.Month; i++) {
-    digitalWrite(6, HIGH);
-    delay(200);
-    digitalWrite(6, LOW);
-    delay(200);
-  }
-  delay(2000);
-  for (uint8 i = 0; i < g_current_date.Year; i++) {
-    digitalWrite(6, HIGH);
-    delay(200);
-    digitalWrite(6, LOW);
-    delay(200);
-  }
-  delay(2000);
-}
-
-void testValidationWithBuzzer(void) {
-
-  for (uint8 i = 0; i < g_user_state + 1; i++) {
-    digitalWrite(6, HIGH);
-    delay(100);
-    digitalWrite(6, LOW);
-    delay(200);
-  }
-  delay(2000);
-  return;
-}
-void testRoomWithBuzzer(void) {
 
 
-  for (uint8 i = 0; i < g_unit_location.Room; i++) {
-    digitalWrite(6, HIGH);
-    delay(200);
-    digitalWrite(6, LOW);
-    delay(200);
-  }
-  delay(2000);
-  for (uint8 i = 0; i < g_unit_location.Floor; i++) {
-    digitalWrite(6, HIGH);
-    delay(200);
-    digitalWrite(6, LOW);
-    delay(200);
-  }
-  delay(2000);
-  for (uint8 i = 0; i < g_unit_location.Building; i++) {
-    digitalWrite(6, HIGH);
-    delay(200);
-    digitalWrite(6, LOW);
-    delay(200);
-  }
-  delay(2000);
-}
+
+//void testKeyWithBuzzer(void) {
+//  uint8 key = KEYPAD_getPressedNewKey();
+//  if (key != 255) {
+//    for (uint8 i = 0; i < key; i++) {
+//      digitalWrite(6, HIGH);
+//      delay(100);
+//      digitalWrite(6, LOW);
+//      delay(200);
+//    }
+//  }
+//  return;
+//}
+//void testRTCwithBuzzer(void) {
+//
+//  for (uint8 i = 0; i < g_current_date.Minute; i++) {
+//    digitalWrite(6, HIGH);
+//    delay(200);
+//    digitalWrite(6, LOW);
+//    delay(200);
+//  }
+//  delay(2000);
+//  for (uint8 i = 0; i < g_current_date.Hour; i++) {
+//    digitalWrite(6, HIGH);
+//    delay(200);
+//    digitalWrite(6, LOW);
+//    delay(200);
+//  }
+//  delay(2000);
+//  for (uint8 i = 0; i < g_current_date.Day; i++) {
+//    digitalWrite(6, HIGH);
+//    delay(200);
+//    digitalWrite(6, LOW);
+//    delay(200);
+//  }
+//  delay(2000);
+//  for (uint8 i = 0; i < g_current_date.Month; i++) {
+//    digitalWrite(6, HIGH);
+//    delay(200);
+//    digitalWrite(6, LOW);
+//    delay(200);
+//  }
+//  delay(2000);
+//  for (uint8 i = 0; i < g_current_date.Year; i++) {
+//    digitalWrite(6, HIGH);
+//    delay(200);
+//    digitalWrite(6, LOW);
+//    delay(200);
+//  }
+//  delay(2000);
+//}
+//
+//void testValidationWithBuzzer(void) {
+//
+//  for (uint8 i = 0; i < g_user_state + 1; i++) {
+//    digitalWrite(6, HIGH);
+//    delay(100);
+//    digitalWrite(6, LOW);
+//    delay(200);
+//  }
+//  delay(2000);
+//  return;
+//}
+//void testRoomWithBuzzer(void) {
+//
+//
+//  for (uint8 i = 0; i < g_unit_location.Room; i++) {
+//    digitalWrite(6, HIGH);
+//    delay(200);
+//    digitalWrite(6, LOW);
+//    delay(200);
+//  }
+//  delay(2000);
+//  for (uint8 i = 0; i < g_unit_location.Floor; i++) {
+//    digitalWrite(6, HIGH);
+//    delay(200);
+//    digitalWrite(6, LOW);
+//    delay(200);
+//  }
+//  delay(2000);
+//  for (uint8 i = 0; i < g_unit_location.Building; i++) {
+//    digitalWrite(6, HIGH);
+//    delay(200);
+//    digitalWrite(6, LOW);
+//    delay(200);
+//  }
+//  delay(2000);
+//}
