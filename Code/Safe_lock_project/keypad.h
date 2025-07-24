@@ -52,8 +52,8 @@ extern "C" {
  * Description :
  * Get the Keypad pressed button
  */
-uint8 KEYPAD_getPressedKey(void); // Function prototype for getting the pressed key
-uint8 KEYPAD_getPressedNewKey(void);
+uint8_t KEYPAD_getPressedKey(void); // Function prototype for getting the pressed key
+uint8_t KEYPAD_getPressedNewKey(void);
 #ifdef __cplusplus
 }
 #endif   //__cplusplus

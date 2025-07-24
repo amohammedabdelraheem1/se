@@ -5,19 +5,19 @@
 #include<arduino.h>
 
 static tLock_state s_lock_state = LOCK_UNKNOWN;
-uint8 l_closeLimitState ;
-uint8 l_openLimitState ;
+uint8_t l_closeLimitState ;
+uint8_t l_openLimitState ;
 void Door_Init()
 { pinMode(OPEN_LIMIT_PIN, INPUT_PULLUP);
   pinMode(CLOSE_LIMIT_PIN, INPUT_PULLUP);
   pinMode(PROXIMITY_PIN, INPUT_PULLUP);
   s_door_state = DOOR_OPEN;
-  return;
+  
 }
 void Door_Update()
 {
-  static uint8 sl_closedCounter = 0;
-  static uint8 sl_openCounter = 0;
+  static uint8_t sl_closedCounter = 0;
+  static uint8_t sl_openCounter = 0;
   if (digitalRead(PROXIMITY_PIN) == LOW)
   {
     sl_openCounter = 0;
@@ -31,7 +31,7 @@ void Door_Update()
       s_door_state = DOOR_CLOSED;
       delay(500);
       Door_Lock();
-      
+
     }
 
   }
@@ -64,7 +64,8 @@ void Door_Lock(void)
   {
     do {
       DC_MOTOR_TurnOn();
-    } while ((digitalRead(CLOSE_LIMIT_PIN) == HIGH) &&(millis() - motorStartTime)< MOTOR_MAX_ON_TIME_MS);
+      Serial.println((millis() - motorStartTime));
+    } while ((digitalRead(CLOSE_LIMIT_PIN) == HIGH) && (millis() - motorStartTime) < MOTOR_MAX_ON_TIME_MS);
     DC_MOTOR_TurnOff();
   }
   return ;
@@ -77,7 +78,7 @@ void Door_Unlock(void)
   {
     do {
       DC_MOTOR_TurnOn();
-    } while ((digitalRead(OPEN_LIMIT_PIN) == HIGH) &&(millis() - motorStartTime)< MOTOR_MAX_ON_TIME_MS);
+    } while ((digitalRead(OPEN_LIMIT_PIN) == HIGH) && (millis() - motorStartTime) < MOTOR_MAX_ON_TIME_MS);
     DC_MOTOR_TurnOff();
   }
   return ;

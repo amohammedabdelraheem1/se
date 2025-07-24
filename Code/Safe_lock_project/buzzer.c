@@ -3,7 +3,7 @@
 #include <arduino.h>
 
 tBuzzer_state g_buzzerState = OFF_STATE;
-uint32 g_startBuzzerTime = 0;
+uint32_t g_startBuzzerTime = 0;
 void Buzzer_Init(void) {
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(BUZZER_PIN, LOW);
@@ -18,8 +18,8 @@ void Buzzer_setTime(tBuzzer_state l_buzzerState) {
   return;
 }
 void Buzzer_Update(void) {
-  static uint8 invalidBassFlag = 0;
-  static uint8 invalidCompFlag = 0;
+  static uint8_t invalidBassFlag = 0;
+  static uint8_t invalidCompFlag = 0;
   switch (g_buzzerState) {
     case OFF_STATE:
       digitalWrite(BUZZER_PIN, LOW);

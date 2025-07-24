@@ -8,6 +8,7 @@ extern "C" {
 
 #include "std_types.h"
 
+
 /************************    defines configurations    *****************************/
 #define PASSWORD_SIZE                4
 #define MAX_ENTRY_PASS_TIME          20000 // by ms
@@ -38,14 +39,15 @@ typedef enum
 tCompare_state;
 
 /************************ variables *****************************/
-extern uint8 eg_savedPass[PASSWORD_SIZE];
-extern uint8 eg_masterPass[PASSWORD_SIZE];
-extern uint8 eg_userPass[PASSWORD_SIZE];
+extern uint8_t eg_savedPass[PASSWORD_SIZE];
+extern uint8_t eg_masterPass[PASSWORD_SIZE];
+extern uint8_t eg_userPass[PASSWORD_SIZE];
 /************************ functions declaration *****************************/
-extern void Password_Init(void);
-extern tPassword_state Password_getPass(uint8* ptrTopass);
-extern tPassword_state Password_setNew(uint8* ptrTopass);
-extern tCompare_state Password_compare( uint8* ptrTopass1, uint8* ptrTopass2);
+void Password_Init(void);
+void Password_Update(uint8_t* ptrTopass, uint8_t l_eeprom_first_byte) ;
+tPassword_state Password_getPass(uint8_t* ptrTopass);
+tPassword_state Password_setNew(uint8_t* ptrTopass);
+tCompare_state Password_compare( uint8_t* ptrTopass1, uint8_t* ptrTopass2);
 
 #ifdef __cplusplus
 }

@@ -1,31 +1,50 @@
 #include "buzzer.h"
 #include "password.h"
 #include "keypad.h"
+#include <EEPROM.h>
+#include <arduino.h>
 
-uint8 eg_savedPass[PASSWORD_SIZE];
-uint8 eg_masterPass[PASSWORD_SIZE];
-uint8 eg_userPass[PASSWORD_SIZE];
+uint8_t eg_savedPass[PASSWORD_SIZE];
+uint8_t eg_masterPass[PASSWORD_SIZE];
+uint8_t eg_userPass[PASSWORD_SIZE];
 
 // Initialize passwords by reading from EEPROM
 
 /*void Password_Init() {
   // Read saved client and master passwords from EEPROM
-  for (uint8 i = 0; i < PASSWORD_SIZE; i++) {
+  for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
     sg_savedPass[i] = EEPROM.read(EEPROM_CLIENT_PASS_FIRST_BYTR + i);
     eg_masterPass[i] = EEPROM.read(EEPROM_MASTER_PASS_FIRST_BYTR + i);
   }
   return;
 }
 */
+void Password_Init() {
+  // Read saved client and master passwords from EEPROM
+  for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
+    eg_savedPass[i] = EEPROM.read(EEPROM_CLIENT_PASS_FIRST_BYTR + i);
+    eg_masterPass[i] = EEPROM.read(EEPROM_MASTER_PASS_FIRST_BYTR + i);
+  }
+  return;
+}
+// Update password in EEPROM
+void Password_Update(uint8_t* ptrTopass, uint8_t l_eeprom_first_byte) {
+  // Write password to specified EEPROM location
+  for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
+    EEPROM.write(l_eeprom_first_byte + i, ptrTopass[i]);
+  }
+  return;
+}
+
 
 // Function to get password input from user
-tPassword_state Password_getPass(uint8* ptrTopass) {
+tPassword_state Password_getPass(uint8_t* ptrTopass) {
 
-  uint8 l_tempPass[PASSWORD_SIZE];
-  uint8 l_pressedKey = NONPRESSED;
-  uint32 l_entryTime = millis();
+  uint8_t l_tempPass[PASSWORD_SIZE];
+  uint8_t l_pressedKey = NONPRESSED;
+  uint32_t l_entryTime = millis();
   // Collect password digits
-  for (uint8 i = 0; i < PASSWORD_SIZE; i++) {
+  for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
     do {
       l_pressedKey = KEYPAD_getPressedNewKey();
        Buzzer_Update();
@@ -60,7 +79,7 @@ tPassword_state Password_getPass(uint8* ptrTopass) {
   }
 
   // Copy temporary password to output
-  for (uint8 i = 0; i < PASSWORD_SIZE; i++) {
+  for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
     ptrTopass[i] = l_tempPass[i];
   }
 
@@ -70,9 +89,9 @@ tPassword_state Password_getPass(uint8* ptrTopass) {
 
 // Update password in EEPROM
 /*
-void Password_Update(uint8* ptrTopass, uint8 l_eeprom_first_byte) {
+void Password_Update(uint8_t* ptrTopass, uint8_t l_eeprom_first_byte) {
   // Write password to specified EEPROM location
-  for (uint8 i = 0; i < PASSWORD_SIZE; i++) {
+  for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
     // EEPROM.write(l_eeprom_first_byte + i, ptrTopass[i]);
   }
   return;
@@ -80,9 +99,9 @@ void Password_Update(uint8* ptrTopass, uint8 l_eeprom_first_byte) {
 */
 
 // Set a new password
-tPassword_state Password_setNew(uint8* ptrTopass) {
-  uint8 l_tempPass1[PASSWORD_SIZE];
-  uint8 l_tempPass2[PASSWORD_SIZE];
+tPassword_state Password_setNew(uint8_t* ptrTopass) {
+  uint8_t l_tempPass1[PASSWORD_SIZE];
+  uint8_t l_tempPass2[PASSWORD_SIZE];
   // Get initial password input
   if (Password_getPass(l_tempPass1) == INVAILD_PASSWORD) {
     Buzzer_setTime(INVALID_PASS_BUZZER);
@@ -102,7 +121,7 @@ tPassword_state Password_setNew(uint8* ptrTopass) {
     Buzzer_setTime(INVALID_PASS_BUZZER);
     return INVAILD_PASSWORD;
   }
-  for (uint8 i = 0; i < PASSWORD_SIZE; i++) {
+  for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
     ptrTopass[i] = l_tempPass1[i];
   }
 
@@ -111,9 +130,9 @@ Buzzer_setTime(VALID_PASS_BUZZER);
 }
 
 // Compare two passwords
-tCompare_state Password_compare(uint8* ptrTopass1, uint8* ptrTopass2) {
+tCompare_state Password_compare(uint8_t* ptrTopass1, uint8_t* ptrTopass2) {
   // Check if passwords match
-  for (uint8 i = 0; i < PASSWORD_SIZE; i++) {
+  for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
     if (ptrTopass1[i] != ptrTopass2[i]) {
       return INVAILD_COMPARE;
     }

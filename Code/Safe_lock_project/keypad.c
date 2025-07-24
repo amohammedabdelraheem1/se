@@ -18,12 +18,12 @@
                         Functions Prototypes(Private)
  *******************************************************************************/
 
-static const uint8 Arr_rows[] = { KEYPAD_ROW1_PIN, KEYPAD_ROW2_PIN, KEYPAD_ROW3_PIN, KEYPAD_ROW4_PIN };  // Array of row pins
-static const uint8 Arr_cols[] = { KEYPAD_COL1_PIN, KEYPAD_COL2_PIN, KEYPAD_COL3_PIN };                   // Array of column pins
+static const uint8_t Arr_rows[] = { KEYPAD_ROW1_PIN, KEYPAD_ROW2_PIN, KEYPAD_ROW3_PIN, KEYPAD_ROW4_PIN };  // Array of row pins
+static const uint8_t Arr_cols[] = { KEYPAD_COL1_PIN, KEYPAD_COL2_PIN, KEYPAD_COL3_PIN };                   // Array of column pins
 
-static uint8 KEYPAD_4x3_adjustKeyNumber(uint8 button_number);  // Function to adjust the key number for a 4x3 keypad
-uint8 KEYPAD_getPressedKey(void);
-uint8 KEYPAD_getPressedNewKey(void);
+static uint8_t KEYPAD_4x3_adjustKeyNumber(uint8_t button_number);  // Function to adjust the key number for a 4x3 keypad
+uint8_t KEYPAD_getPressedKey(void);
+uint8_t KEYPAD_getPressedNewKey(void);
 /*******************************************************************************
                         Functions Definitions
  *******************************************************************************/
@@ -32,7 +32,7 @@ uint8 KEYPAD_getPressedNewKey(void);
    @brief Get the Pressed Key on the Keypad
    @return The pressed key value, or NONPRESSED if no key is pressed
 */
-uint8 KEYPAD_getPressedKey(void) {
+uint8_t KEYPAD_getPressedKey(void) {
   // Set all row pins as input with pull-up resistors
   pinMode(KEYPAD_ROW1_PIN, INPUT_PULLUP);
   pinMode(KEYPAD_ROW2_PIN, INPUT_PULLUP);
@@ -45,16 +45,16 @@ uint8 KEYPAD_getPressedKey(void) {
   pinMode(KEYPAD_COL3_PIN, INPUT_PULLUP);
 
   // Iterate through the rows
-  for (uint8 i = 0; i < KEYPAD_NUM_ROWS; i++) {
+  for (uint8_t i = 0; i < KEYPAD_NUM_ROWS; i++) {
     // Set the current row pin as output and drive it low
     pinMode(Arr_rows[i], OUTPUT);
     digitalWrite(Arr_rows[i], LOW);
 
     // Check the column pins for a pressed button
-    for (uint8 j = 0; j < KEYPAD_NUM_COLS; j++) {
+    for (uint8_t j = 0; j < KEYPAD_NUM_COLS; j++) {
       if (digitalRead(Arr_cols[j]) == KEYPAD_BUTTON_PRESSED) {
         // Debounce the button press
-        for (uint8 w = 0; w < KEYPAD_DEBOUNCING_NUM; w++) {
+        for (uint8_t w = 0; w < KEYPAD_DEBOUNCING_NUM; w++) {
           if (digitalRead(Arr_cols[j]) == KEYPAD_BUTTON_RELEASED) {
             return NONPRESSED;
           }
@@ -77,8 +77,8 @@ uint8 KEYPAD_getPressedKey(void) {
    @param button_number The raw button number (1-12)
    @return The adjusted key value
 */
-static uint8 KEYPAD_4x3_adjustKeyNumber(uint8 button_number) {
-  uint8 keypad_button = 0;
+static uint8_t KEYPAD_4x3_adjustKeyNumber(uint8_t button_number) {
+  uint8_t keypad_button = 0;
   switch (button_number) {
     case 10:
       keypad_button = '*';  // ASCII code for '*'
@@ -95,9 +95,9 @@ static uint8 KEYPAD_4x3_adjustKeyNumber(uint8 button_number) {
   }
   return keypad_button;
 }
-uint8 KEYPAD_getPressedNewKey() {
-  static uint8 sl_curretKey = NONPRESSED, sl_prevKey = NONPRESSED, sl_newKeyFlag = 0;
-  static uint16 sl_debouncingCounter = 0;
+uint8_t KEYPAD_getPressedNewKey() {
+  static uint8_t sl_curretKey = NONPRESSED, sl_prevKey = NONPRESSED, sl_newKeyFlag = 0;
+  static uint16_t sl_debouncingCounter = 0;
   sl_curretKey = KEYPAD_getPressedKey();
   if (sl_curretKey == sl_prevKey) {
     if (sl_debouncingCounter <= DEBOUNCING_TIMES) {

@@ -1,123 +1,16 @@
-#include <EEPROM.h>
 #include "password.h"
 #include "keypad.h"
 #include "buzzer.h"
 #include "door.h"
 #include "dc_motor.h"
-//********************************************************//
-#include <SPI.h>
-#include <MFRC522.h>
-#include "Arduino.h"
-#include "RTClib.h"
-RTC_DS1307 rtc;
-//********************************************************//
-/**************************************************************/
-#define TYPE_BYTE_NUM 0
-#define ID_BYTE_NUM 3
-#define MONTH_DAY_BYTE_NUM 7
-#define YEAR_BYTE_NUM 8
-#define MINET_BYTE_NUM 9
-#define HOUR_BYTE_NUM 10
-#define ROOM_BYTE_NUM 11
-#define FLOOR_BYTE_NUM 12
-#define BUILDING_BYTE_NUM 13
-#define CRC_BYTE_NUM 15
-#define SYNC_MINET_BYTE_NUM 13
-#define SYNC_HOUR_BYTE_NUM 10
-#define SYNC_MONTH_DAY_BYTE_NUM 11
-#define SYNC_YEAR_BYTE_NUM 12
+#include"rfid.h"
+#include "mode.h"
+#include "rtc.h"
+#include "unit.h"
+
 /*************************************************************/
 #define PROGRAMMIN_PERIOD 60000  // mill second
 /*************************************************************/
-/**************************************************************/
-#define EEPROM_ROOM_BYTE_NUM 8
-#define EEPROM_FLOOR_BYTE_NUM 9
-#define EEPROM_BUILDING_BYTE_NUM 10
-/**************************************************************/
-#define RST_PIN 9  // Configurable, see typical pin layout above
-#define SS_PIN 10  // Configurable, see typical pin layout above
-/**************************************************************/
-#define SECONDS 0
-#define DAYOFWEEK 1
-/**************************************************************/
-#define SECONDS_FROM_1970_TO_2000 946684800
-const byte daysInMonth[11] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30 };
-/************************RFID VARIABLES****************************/
-MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance.
-MFRC522::MIFARE_Key key;
-/***********************************************************/
-typedef struct
-{
-  byte Room;
-  byte Floor;
-  byte Building;
-} tLocation;  // UnitLocation
-typedef struct
-{
-  byte Minute;
-  byte Hour;
-  byte Day;
-  byte Month;
-  byte Year;
-} tDate;  //CurrentDate ,SyncDate
-typedef struct
-{
-  byte Type;
-  byte ID;
-  tDate ExpirdDate;
-  tLocation CardLocation;
-  byte CRC;
-} tCard;  // currentCard ,prevCard
-
-typedef enum {
-  AUTHORISED = 0x00,
-  ROOM = 0x08,
-  TIMESYNC = 0x0C,
-  //FLOOR      = 0x30,
-  //BUILDING   = 0x34,
-  MASTER = 0x2E,
-  EMRGANCY = 0x29,
-  CLIENT = 0x18,
-  OTHER = 0xFF
-} tType;
-
-typedef enum {
-  INVALID_STATE,
-  VALID_STATE
-} tUserState;
-typedef enum {
-  IDEAL,
-  PROGRAMMING_CARD,
-  PROGRAMMING_PASS,
-  LIGHT_ONLY,
-  ALL_OUTPUTS
-} tMode;
-/************************Variables definetions**********************************/
-tMode g_mode = IDEAL;
-tUserState g_user_state = INVALID_STATE;
-tCard g_Current_card, g_Prev_card;
-tLocation g_unit_location;
-byte g_buffer[18], g_prev_buffer[18], g_buffer_size = sizeof(g_buffer);
-tDate g_current_date, g_sync_date;
-unsigned long g_authorised_period, g_authorised_data, g_light_only_last_date, g_light_only_start_date, g_all_outputs_date;
-unsigned long g_current_unixtime, g_expired_unixtime;
-/*******************************************************************************/
-void Password_Init() {
-  // Read saved client and master passwords from EEPROM
-  for (uint8 i = 0; i < PASSWORD_SIZE; i++) {
-    eg_savedPass[i] = EEPROM.read(EEPROM_CLIENT_PASS_FIRST_BYTR + i);
-    eg_masterPass[i] = EEPROM.read(EEPROM_MASTER_PASS_FIRST_BYTR + i);
-  }
-  return;
-}
-// Update password in EEPROM
-void Password_Update(uint8* ptrTopass, uint8 l_eeprom_first_byte) {
-  // Write password to specified EEPROM location
-  for (uint8 i = 0; i < PASSWORD_SIZE; i++) {
-    EEPROM.write(l_eeprom_first_byte + i, ptrTopass[i]);
-  }
-  return;
-}
 
 void setup() {
   Serial.begin(115200); // Initialize serial communications at 115200 bps
@@ -131,11 +24,8 @@ void setup() {
   DC_MOTOR_Init();
 //  Lock_Init();
   // uncomment to set unit location manual
-
-  g_unit_location.Room = 5;
-  g_unit_location.Floor = 1;
-  g_unit_location.Building = 2;
-  UNIT_Update();
+//8888888888888888(R, F, B)
+  UNIT_SetLocation(5, 1, 2);
   UNIT_Init_Read();
   MODE_Init();
   Door_Unlock();
@@ -153,7 +43,7 @@ void loop() {
   Buzzer_Update();
   //MODE_Update();
 }
-
+/*
 void CARD_Init(void) {
   g_Current_card.Type = OTHER;
   g_Current_card.ID = 0x00;
@@ -170,10 +60,10 @@ void CARD_Init(void) {
 }
 void CARD_Update(void) {
   byte temp;
-  /*****************read the  new card*********************/
+  /*****************read the  new card*********************
   Serial.println("ReadCardHere");
   CardRead();
-  /*****************Extract data***************************/
+  /*****************Extract data***************************
   temp = g_buffer[TYPE_BYTE_NUM];
   switch (temp) {
     case 0x00:
@@ -185,13 +75,13 @@ void CARD_Update(void) {
     case 0x0C:
       g_Current_card.Type = TIMESYNC;
       break;
-    /*    case 0x30:
-      g_Current_card.Type = FLOOR;
-      break;
-      case 0x34:
-      g_Current_card.Type = BUILDING;
-      break;
-    */
+    //     case 0x30:
+    //   g_Current_card.Type = FLOOR;
+    //   break;
+    //   case 0x34:
+    //   g_Current_card.Type = BUILDING;
+    //   break;
+    // 
     case 0x2E:
       g_Current_card.Type = MASTER;
       break;
@@ -347,160 +237,11 @@ void CardRead(void) {
   Serial.println(F(":"));
   Serial.println();
   mfrc522.PCD_StopCrypto1();
-}
-void MODE_Init(void) {
-  g_mode = IDEAL;
-}
-/*void MODE_Update(void) {
+}*/
 
-  switch (g_user_state) {
-    case INVALID_STATE:
-      switch (g_mode) {
-        case IDEAL:
-          g_mode = IDEAL;
-          Serial.println("INVALEDSTATE_IN_MODE");
-          break;
-        case PROGRAMMING:
-          if ((millis() - g_authorised_data) > (PROGRAMMIN_PERIOD)) {
-            BUZZER_Flush(PROGRAMMING);
-            g_mode = IDEAL;
-            Serial.println("INVALEDSTATE_IN_AUTHORISED");
-          }
-          break;
-        case LIGHT_ONLY:
-          if ((millis() - g_light_only_last_date) > (OFF_DELAY)) {
-            g_mode = IDEAL;
-            Serial.println("INVALEDSTATE_IN_LIGHT_ONLY");
-          }
-          break;
-        case ALL_OUTPUTS:
-          if ((millis() - g_all_outputs_date) > (OFF_DELAY)) {
-            g_mode = IDEAL;
-            Serial.println("INVALEDSTATE_IN_ALL_OUTPUTS");
-          }
-          break;
-        default:
-          g_mode = IDEAL;
-          Serial.println("INVALEDSTATE_IN_DEFAULT");
-          break;
-      }
-      break;
 
-    case VALID_STATE:
-      {
-        Serial.println("VALEDSTATEINMODE");
-        switch (g_mode) {
-          case IDEAL:
-            Serial.println("IDEAL");
-            switch (g_Current_card.Type) {
-              case AUTHORISED:
-                Serial.println("AUTHORISED");
-                g_mode = PROGRAMMING;
-                BUZZER_Flush(AUTHORISED);
-                g_authorised_data = millis();  // --------------------->>
-                Serial.println("PROGRAMMING1");
-                break;
-                //  case MASTER:
-              case EMRGANCY:
-                // case BUILDING:
-                // case FLOOR:
-              case CLIENT:
-                Serial.println("MASTER-EMRGANCY-BUILDING-FLOOR-CLIENT");
-                g_mode = LIGHT_ONLY;
-                g_light_only_start_date = millis();  // --------------------->>
-                break;
-              default:
-                break;
-            }
-            break;
-          case PROGRAMMING:
-            Serial.println("PROGRAMMING2");
-            if ((millis() - g_authorised_data) <= (PROGRAMMIN_PERIOD)) {
-              switch (g_Current_card.Type) {
-                Serial.println("PROGRAMMING3");
-                case ROOM:
-                  Serial.println("ROOM");
-                  g_unit_location.Room = g_buffer[ROOM_BYTE_NUM];
-                  g_unit_location.Floor = g_buffer[FLOOR_BYTE_NUM];
-                  g_unit_location.Building = g_buffer[BUILDING_BYTE_NUM];
-                  UNIT_Update();
-                  BUZZER_Flush(ROOM);
-                  g_mode = IDEAL;
-                  break;
-                case TIMESYNC:
-                  Serial.println("TIMESYNC");
-                  g_sync_date.Minute = (g_buffer[SYNC_MINET_BYTE_NUM] & 0x7f);
-                  g_sync_date.Hour = (((g_buffer[SYNC_MINET_BYTE_NUM] & 0x80) >> 3) | (g_buffer[SYNC_HOUR_BYTE_NUM] & 0x0f));
-                  g_sync_date.Day = (g_buffer[SYNC_MONTH_DAY_BYTE_NUM] & 0x0f) | ((g_buffer[SYNC_YEAR_BYTE_NUM] & 0x80) >> 3);
-                  g_sync_date.Month = (g_buffer[SYNC_MONTH_DAY_BYTE_NUM] >> 4);
-                  g_sync_date.Year = (g_buffer[SYNC_YEAR_BYTE_NUM] & 0x7f);
-                  RTC_Set();
-                  BUZZER_Flush(TIMESYNC);
-                  g_mode = IDEAL;
-                  break;
-                default:
-                  break;
-              }
-            } else {
-              Serial.println("PROGRAMMING4");
-              BUZZER_Flush(PROGRAMMING);
-              g_mode = IDEAL;
-            }
-            break;
-          case LIGHT_ONLY:
-            Serial.println("LIGHT_ONLY");
-            g_light_only_last_date = millis();  // --------------------->>
-            switch (g_Current_card.Type) {
-              case CLIENT:
-              case EMRGANCY:
-             // case MASTER:
-                Serial.println("CLIENT-EMRGANCY-MASTER");
 
-                if ((millis() - g_light_only_start_date) >= (AC_DELAY)) {
-                  g_mode = ALL_OUTPUTS;
-                }
-                break;
-              default:
-                break;
-            }
-            break;
-          case ALL_OUTPUTS:
-            switch (g_Current_card.Type) {
-              case CLIENT:
-              case EMRGANCY:
-              //case MASTER:
-                g_all_outputs_date = millis();  //------------------------------------>
-                Serial.println("ALLOUTPUTS");
-                break;
-              default:
-                g_mode = IDEAL;
-            }
-            break;
-          default:
-            g_mode = IDEAL;
-            break;
-        }
-      }
-      break;
-    default:
-      g_mode = IDEAL;
-      break;
-  }
-  }
-*/
-void RFID_Init(void) {
-  while (!Serial)
-    ;                  // Do nothing if no serial port is opened (added for Arduinos based on ATMEGA32U4)
-  SPI.begin();         // Init SPI bus
-  mfrc522.PCD_Init();  // Init MFRC522 card
-
-  // Prepare the key (used both as key A and as key B)
-  // using FFFFFFFFFFFFh which is the default at chip delivery from the factory
-  for (byte i = 0; i < 6; i++) {
-    key.keyByte[i] = 0xFF;
-  }
-}
-void UNIT_Init_Read(void) {
+/*void UNIT_Init_Read(void) {
   g_unit_location.Room = EEPROM.read(EEPROM_ROOM_BYTE_NUM);
   g_unit_location.Floor = EEPROM.read(EEPROM_FLOOR_BYTE_NUM);
   g_unit_location.Building = EEPROM.read(EEPROM_BUILDING_BYTE_NUM);
@@ -586,6 +327,7 @@ unsigned int Date2Days(unsigned int y, byte m, byte d) {
 unsigned long Time2Ulong(unsigned int days, byte h, byte m) {
   return ((days * 24UL + h) * 60 + m) * 60;
 }
+*/
 /**************************testing function*******************************/
 const char* CardTypeToString(byte type) {
   switch (type) {
