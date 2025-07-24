@@ -8,12 +8,14 @@ extern "C" {
 #endif // __cplusplus
 
 #include "common_types.h" // Include the common types header file
+#include <Arduino.h>
 
 void RTC_Init(void);
 void RTC_Set(tDate date);
 void RTC_Update(void);
-bool RTC_IsTimeValid(tDate date);
+bool RTC_IsTimeValid(tDate* date);
 uint32_t UnixTime(tDate* date);
+void RealTimeDisplay(void);
 #endif // RTC_H
 // End of C++ compatibility block
 #ifdef __cplusplus

@@ -15,7 +15,7 @@
 extern "C" {
 #endif // __cplusplus
 #include <MFRC522.h>
-#include "Arduino.h"
+#include <Arduino.h>
 #include "common_types.h"
 /**************************************************************/
 #define TYPE_BYTE_NUM 0
@@ -42,17 +42,11 @@ MFRC522::MIFARE_Key key;
 /***********************************************************/
 typedef struct
 {
-  byte Room;
-  byte Floor;
-  byte Building;
-} tLocation;  // UnitLocation
-typedef struct
-{
-  byte Type;
-  byte ID;
+  uint8_t Type;
+  uint8_t ID;
   tDate ExpirdDate;
   tLocation CardLocation;
-  byte CRC;
+  uint8_t CRC;
 } tCard;  // currentCard ,prevCard
 
 typedef enum {
@@ -67,23 +61,13 @@ typedef enum {
   OTHER = 0xFF
 } tType;
 
-
-
-/************************Variables definetions**********************************/
-tUserState g_user_state = INVALID_STATE;
-tCard g_Current_card, g_Prev_card;
-tLocation g_unit_location;
-byte g_buffer[18], g_prev_buffer[18], g_buffer_size = sizeof(g_buffer);
-tDate g_current_date, g_sync_date;
-unsigned long g_authorised_period, g_authorised_data, g_light_only_last_date, g_light_only_start_date, g_all_outputs_date;
-unsigned long g_current_unixtime, g_expired_unixtime;
-/*******************************************************************************/
 void RFID_Init(void);
 void CARD_Init(void);
 void CardRead(void);
 void CARD_Update(void);
 void CHECK_VALIDATION_Init(void) ;
 void CHECK_VALIDATION_Update(void);
+void CardDataDisplay(void);
 tUserState CHECK_VALIDATION_GetState(void);
 
 #ifdef __cplusplus

@@ -41,7 +41,7 @@ void Door_Update(void);     // Update door state
 tDoor_state Door_GetState(void);  // Retrieve current door state
 void Door_Lock(void);
 void Door_Unlock(void);
-
+void DoorDisplay(void);
 
 // Close extern "C" block for C++ compatibility
 #ifdef __cplusplus

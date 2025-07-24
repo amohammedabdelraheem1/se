@@ -1,8 +1,8 @@
-#include"std_types.h"
+
 #include"door.h"
 #include "dc_motor.h"
 #include "lock.h"
-#include<arduino.h>
+#include <Arduino.h>
 
 static tLock_state s_lock_state = LOCK_UNKNOWN;
 uint8_t l_closeLimitState ;
@@ -82,4 +82,10 @@ void Door_Unlock(void)
     DC_MOTOR_TurnOff();
   }
   return ;
+}
+void DoorDisplay(void)
+{
+  Serial.print("Door = ");
+  Serial.print(Door_GetState());
+  return;
 }

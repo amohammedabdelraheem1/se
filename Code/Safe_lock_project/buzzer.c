@@ -1,6 +1,5 @@
 #include "buzzer.h"
-#include "std_types.h"
-#include <arduino.h>
+#include <Arduino.h>  
 
 tBuzzer_state g_buzzerState = OFF_STATE;
 uint32_t g_startBuzzerTime = 0;

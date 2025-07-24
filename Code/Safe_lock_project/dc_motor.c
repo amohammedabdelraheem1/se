@@ -1,6 +1,5 @@
-#include "std_types.h"
 #include "dc_motor.h"
-#include <arduino.h>
+#include <Arduino.h>  
 
 // Initialize DC motor control pin
 void DC_MOTOR_Init()

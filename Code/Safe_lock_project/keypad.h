@@ -18,7 +18,7 @@
 extern "C" {
 #endif   //__cplusplus
 
-#include "std_types.h" // Include the standard types header file
+#include <Arduino.h>
 
 /*******************************************************************************
  *                                Definitions                                  *

@@ -21,9 +21,9 @@ tLocation UNIT_GetLocation(void)
 {
     return g_unit_location;
 }
-bool UNIT_IsSameLocation(tLocation location)
+bool UNIT_IsSameLocation(tLocation* ptr2location)
 {
-    return (g_unit_location.Room == location.Room &&
-            g_unit_location.Floor == location.Floor &&
-            g_unit_location.Building == location.Building);
+    return (g_unit_location.Room == ptr2location->Room &&
+            g_unit_location.Floor == ptr2location->Floor &&
+            g_unit_location.Building == ptr2location->Building);
 }

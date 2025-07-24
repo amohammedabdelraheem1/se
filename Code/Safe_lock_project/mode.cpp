@@ -93,7 +93,7 @@ void MODE_Update(void)
 //                  g_sync_date.Day = (g_buffer[SYNC_MONTH_DAY_BYTE_NUM] & 0x0f) | ((g_buffer[SYNC_YEAR_BYTE_NUM] & 0x80) >> 3);
 //                  g_sync_date.Month = (g_buffer[SYNC_MONTH_DAY_BYTE_NUM] >> 4);
 //                  g_sync_date.Year = (g_buffer[SYNC_YEAR_BYTE_NUM] & 0x7f);
-//                  RTC_Set();
+//                  RTC_Set(&g_sync_date);
 //                  BUZZER_Flush(TIMESYNC);
 //                  g_mode = IDEAL;
 //                  break;

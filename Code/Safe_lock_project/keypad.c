@@ -11,7 +11,7 @@
 *******************************************************************************/
 
 #include "keypad.h"   // Include the keypad header file
-#include <arduino.h>  // Include the Arduino library
+#include <Arduino.h>    // Include the Arduino library
 #include "buzzer.h"
 
 /*******************************************************************************

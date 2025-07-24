@@ -5,8 +5,7 @@
 extern "C" {
 #endif   //__cplusplus
 //header code
-
-#include "std_types.h"
+#include <Arduino.h>
 
 
 /************************    defines configurations    *****************************/

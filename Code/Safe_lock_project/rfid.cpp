@@ -8,7 +8,6 @@ tCard g_Current_card, g_Prev_card;
 uint8_t g_buffer[18], g_prev_buffer[18], g_buffer_size = sizeof(g_buffer);
 tDate  g_sync_date;
 
-uint32_t g_current_unixtime, g_expired_unixtime;
 /*******************************************************************************/
 void RFID_Init(void) {
   while (!Serial)
@@ -19,7 +18,7 @@ void RFID_Init(void) {
   // Prepare the key (used both as key A and as key B)
   // using FFFFFFFFFFFFh which is the default at chip delivery from the factory
   for (uint8_t i = 0; i < 6; i++) {
-    key.keyuint8_t[i] = 0xFF;
+    key.keyByte[i] = 0xFF;
   }
 }
 void CARD_Init(void)
@@ -76,17 +75,16 @@ void CARD_Update(void)
     g_Current_card.Type = OTHER;
     break;
   }
-  g_Current_card.ID = g_buffer[ID_uint8_t_NUM];
-  g_Current_card.ExpirdDate.Minute = (g_buffer[MINET_uint8_t_NUM] & 0x7f);
-  g_Current_card.ExpirdDate.Hour = (((g_buffer[MINET_uint8_t_NUM] & 0x80) >> 3) | (g_buffer[HOUR_uint8_t_NUM] >> 4));
-  g_Current_card.ExpirdDate.Day = (g_buffer[MONTH_DAY_uint8_t_NUM] & 0x0f) | ((g_buffer[YEAR_uint8_t_NUM] & 0x80) >> 3);
-  g_Current_card.ExpirdDate.Month = (g_buffer[MONTH_DAY_uint8_t_NUM] >> 4);
-  g_Current_card.ExpirdDate.Year = (g_buffer[YEAR_uint8_t_NUM] & 0x7f);
-  g_Current_card.CardLocation.Room = g_buffer[ROOM_uint8_t_NUM];
-  g_Current_card.CardLocation.Floor = g_buffer[FLOOR_uint8_t_NUM];
-  g_Current_card.CardLocation.Building = g_buffer[BUILDING_uint8_t_NUM];
-  g_Current_card.CRC = g_buffer[CRC_uint8_t_NUM];
-  g_expired_unixtime = UnixTime(g_Current_card.ExpirdDate);
+  g_Current_card.ID = g_buffer[ID_BYTE_NUM];
+  g_Current_card.ExpirdDate.Minute = (g_buffer[MINET_BYTE_NUM] & 0x7f);
+  g_Current_card.ExpirdDate.Hour = (((g_buffer[MINET_BYTE_NUM] & 0x80) >> 3) | (g_buffer[HOUR_BYTE_NUM] >> 4));
+  g_Current_card.ExpirdDate.Day = (g_buffer[MONTH_DAY_BYTE_NUM] & 0x0f) | ((g_buffer[YEAR_BYTE_NUM] & 0x80) >> 3);
+  g_Current_card.ExpirdDate.Month = (g_buffer[MONTH_DAY_BYTE_NUM] >> 4);
+  g_Current_card.ExpirdDate.Year = (g_buffer[YEAR_BYTE_NUM] & 0x7f);
+  g_Current_card.CardLocation.Room = g_buffer[ROOM_BYTE_NUM];
+  g_Current_card.CardLocation.Floor = g_buffer[FLOOR_BYTE_NUM];
+  g_Current_card.CardLocation.Building = g_buffer[BUILDING_BYTE_NUM];
+  g_Current_card.CRC = g_buffer[CRC_BYTE_NUM];
 }
 void CHECK_VALIDATION_Init(void)
 {
@@ -103,7 +101,7 @@ void CHECK_VALIDATION_Update(void)
   else
   {
 
-    if (RTC_IsTimeValid(g_Current_card.ExpirdDate)) // check the date
+    if (RTC_IsTimeValid(&(g_Current_card.ExpirdDate))) // check the date
     {
       Serial.println("date done");
       if ((g_Current_card.Type == AUTHORISED) || (g_Current_card.Type == ROOM) || (g_Current_card.Type == TIMESYNC))
@@ -121,7 +119,23 @@ void CHECK_VALIDATION_Update(void)
       else if (g_Current_card.Type == CLIENT)
       {
         Serial.println("CLIENT");
-        if (UNIT_IsSameLocation(g_Current_card.CardLocation))
+        if (UNIT_IsSameLocation(&(g_Current_card.CardLocation))) // check the location
+        {
+          Serial.println("UNIT_IsSameLocation done");
+          if (RTC_IsTimeValid(&(g_Current_card.ExpirdDate))) // check the time
+          {
+            Serial.println("Time done");
+            g_user_state = VALID_STATE;
+            return;
+          }
+          else
+          {
+            Serial.println("INVALID_STATE2");
+            g_user_state = INVALID_STATE;
+            return;
+          }
+        }
+        else
         {
           Serial.println("Room, Floor, and Building done");
           g_user_state = VALID_STATE;
@@ -167,7 +181,7 @@ void CardRead(void)
   s_NoCardCounter = 0;
   // Show some details of the PICC (that is: the tag/card)
   Serial.print(F("Card UID:"));
-  // dump_uint8_t_array(mfrc522.uid.uiduint8_t, mfrc522.uid.size);
+  // dump_BYTE_array(mfrc522.uid.uidBYTE, mfrc522.uid.size);
   Serial.println();
   Serial.print(F("PICC type: "));
   MFRC522::PICC_Type piccType = mfrc522.PICC_GetType(mfrc522.uid.sak);
@@ -231,4 +245,45 @@ void CardRead(void)
 tUserState CHECK_VALIDATION_GetState(void)
 {
   return g_user_state;
+}
+const char* CardTypeToString(byte type) {
+  switch (type) {
+    case AUTHORISED: return "AUTHORISED";
+    case ROOM: return "ROOM";
+    case TIMESYNC: return "TIMESYNC";
+    // case FLOOR: return "FLOOR";
+    //case BUILDING: return "BUILDING";
+    case MASTER: return "MASTER";
+    case EMRGANCY: return "EMERGENCY";
+    case CLIENT: return "CLIENT";
+    default: return "OTHER";
+  }
+}
+void CardDataDisplay(void) {
+  Serial.print("TYPE = ");
+  Serial.print(CardTypeToString(g_Current_card.Type));
+  Serial.print(" ID = ");
+  Serial.print(g_Current_card.ID);
+
+  Serial.print(" | DATE = ");
+  Serial.print(g_Current_card.ExpirdDate.Year);
+  Serial.print("-");
+  Serial.print(g_Current_card.ExpirdDate.Month);
+  Serial.print("-");
+  Serial.print(g_Current_card.ExpirdDate.Day);
+
+  Serial.print(" | TIME = ");
+  Serial.print(g_Current_card.ExpirdDate.Hour);
+  Serial.print(":");
+  Serial.println(g_Current_card.ExpirdDate.Minute);
+
+  Serial.print("Room: ");
+  Serial.print(g_Current_card.CardLocation.Room);
+  Serial.print(", Floor: ");
+  Serial.print(g_Current_card.CardLocation.Floor);
+  Serial.print(", Building: ");
+  Serial.println(g_Current_card.CardLocation.Building);
+
+  Serial.print("CRC = ");
+  Serial.println(g_Current_card.CRC);
 }

@@ -2,7 +2,7 @@
 #include "password.h"
 #include "keypad.h"
 #include <EEPROM.h>
-#include <arduino.h>
+#include <Arduino.h>  
 
 uint8_t eg_savedPass[PASSWORD_SIZE];
 uint8_t eg_masterPass[PASSWORD_SIZE];

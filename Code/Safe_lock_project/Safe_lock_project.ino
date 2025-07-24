@@ -27,7 +27,6 @@ void setup() {
   // uncomment to set unit location manual
 //8888888888888888(R, F, B)
   UNIT_SetLocation(5, 1, 2);
-  UNIT_Init_Read();
   MODE_Init();
   Door_Unlock();
   delay(3000);
@@ -46,74 +45,9 @@ void loop() {
 }
 
 /**************************testing function*******************************/
-const char* CardTypeToString(byte type) {
-  switch (type) {
-    case AUTHORISED: return "AUTHORISED";
-    case ROOM: return "ROOM";
-    case TIMESYNC: return "TIMESYNC";
-    // case FLOOR: return "FLOOR";
-    //case BUILDING: return "BUILDING";
-    case MASTER: return "MASTER";
-    case EMRGANCY: return "EMERGENCY";
-    case CLIENT: return "CLIENT";
-    default: return "OTHER";
-  }
-}
 
-void CardDataDisplay() {
-  Serial.print("TYPE = ");
-  Serial.print(CardTypeToString(g_Current_card.Type));
-  Serial.print(" ID = ");
-  Serial.print(g_Current_card.ID);
 
-  Serial.print(" | DATE = ");
-  Serial.print(g_Current_card.ExpirdDate.Year);
-  Serial.print("-");
-  Serial.print(g_Current_card.ExpirdDate.Month);
-  Serial.print("-");
-  Serial.print(g_Current_card.ExpirdDate.Day);
 
-  Serial.print(" | TIME = ");
-  Serial.print(g_Current_card.ExpirdDate.Hour);
-  Serial.print(":");
-  Serial.println(g_Current_card.ExpirdDate.Minute);
-
-  Serial.print("Room: ");
-  Serial.print(g_Current_card.CardLocation.Room);
-  Serial.print(", Floor: ");
-  Serial.print(g_Current_card.CardLocation.Floor);
-  Serial.print(", Building: ");
-  Serial.println(g_Current_card.CardLocation.Building);
-
-  Serial.print("CRC = ");
-  Serial.println(g_Current_card.CRC);
-}
-void RealTimeDisplay() {
-  Serial.print("Current Time = ");
-  if (g_current_date.Hour < 10) Serial.print("0");
-  Serial.print(g_current_date.Hour);
-  Serial.print(":");
-  if (g_current_date.Minute < 10) Serial.print("0");
-  Serial.print(g_current_date.Minute);
-
-  Serial.print(" | Date = ");
-  if (g_current_date.Day < 10) Serial.print("0");
-  Serial.print(g_current_date.Day);
-  Serial.print("-");
-  if (g_current_date.Month < 10) Serial.print("0");
-  Serial.print(g_current_date.Month);
-  Serial.print("-");
-  Serial.print(g_current_date.Year + 2000); // Convert back to full year
-
-  Serial.print(" | Unix Time = ");
-  Serial.println(g_current_unixtime);
-}
-void DoorDisplay()
-{
-  Serial.print("Door = ");
-  Serial.print(Door_GetState());
-  return;
-}
 
 
 
