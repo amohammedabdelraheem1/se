@@ -14,6 +14,9 @@
 #include <Arduino.h>
 #include "common_types.h"
 /**************************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 #define TYPE_BYTE_NUM 0
 #define ID_BYTE_NUM 3
 #define MONTH_DAY_BYTE_NUM 7
@@ -49,9 +52,7 @@ typedef enum {
   CLIENT = 0x18,
   OTHER = 0xFF
 } tType;
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
+
 void RFID_Init(void);
 void CARD_Init(void);
 void CardRead(void);

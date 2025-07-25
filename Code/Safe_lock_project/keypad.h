@@ -12,9 +12,9 @@
 
 #ifndef KEYPAD_H_
 #define KEYPAD_H_
+#include <Arduino.h>
 // Preprocessor directive to ensure C++ compatibility
 // Prevents name mangling when used in C++ projects
-#include <Arduino.h>
 #ifdef __cplusplus
 extern "C" {
 #endif   //__cplusplus
@@ -28,7 +28,7 @@ extern "C" {
 #define KEYPAD_NUM_ROWS                   4 // Number of rows in the keypad
 #define KEYPAD_DEBOUNCING_NUM             3 // Number of times to debounce the keypad
 #define NONPRESSED                        0xFF // Value returned when no key is pressed
-#define DEBOUNCING_TIMES                  1000 //max 65,535              
+#define DEBOUNCING_TIMES                  10 //max 65,535              
 
 /* Keypad pin Configurations */
 #define KEYPAD_ROW1_PIN                   2  // PD2 (Pin 2)
@@ -36,7 +36,7 @@ extern "C" {
 #define KEYPAD_ROW3_PIN                   15 // PC1 (Pin 3)
 #define KEYPAD_ROW4_PIN                   17 // A3 PC3 (Pin 17)
 #define KEYPAD_COL1_PIN                   3 // PD3 (Pin 3)
-#define KEYPAD_COL2_PIN                   1 // PD1 (Pin 1)---------------->
+#define KEYPAD_COL2_PIN                   0 // PD1 (Pin 1)---------------->
 #define KEYPAD_COL3_PIN                   16 // PC2 (Pin 16)
 
 /* Keypad button logic configurations */

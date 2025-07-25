@@ -158,6 +158,7 @@ void CHECK_VALIDATION_Update(void)
 }
 void CardRead(void)
 {
+  Serial.println("Starting read card");
   for (int i = 0; i < g_buffer_size; i++)
   {
     g_prev_buffer[i] = g_buffer[i];
@@ -175,14 +176,14 @@ void CardRead(void)
 
       s_NoCardCounter = 0;
     }
-    // Serial.println("isNewCardPresent");
-    // Serial.println(s_NoCardCounter);
+     Serial.println("isNewCardPresent");
+     Serial.println(s_NoCardCounter);
     return;
   }
   // Select one of the cards
   if (!mfrc522.PICC_ReadCardSerial())
   {
-    // Serial.println("ReadCardSerial");
+     Serial.println("ReadCardSerial");
     return;
   }
   s_NoCardCounter = 0;

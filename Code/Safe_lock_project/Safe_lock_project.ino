@@ -23,9 +23,9 @@ void setup() {
   CHECK_VALIDATION_Init();
   Door_Init();
   DC_MOTOR_Init();
-//  Lock_Init();
+  //  Lock_Init();
   // uncomment to set unit location manual
-//8888888888888888(R, F, B)
+  //8888888888888888(R, F, B)
   UNIT_SetLocation(5, 1, 2);
   MODE_Init();
   Door_Unlock();
@@ -33,24 +33,31 @@ void setup() {
 }
 
 void loop() {
-  CARD_Update();
-  //CardDataDisplay();
-  RTC_Update();
-  //RealTimeDisplay();
-  CHECK_VALIDATION_Update();
-  Door_Update();
-  DoorDisplay();
+  uint8_t temp;
+  uint32_t t ;
+  //  CARD_Update();
+  //  CardDataDisplay();
+  //  RTC_Update();
+  //  RealTimeDisplay();
+  //  CHECK_VALIDATION_Update();
+  //  Door_Update();
+  //  DoorDisplay();
+   // t = millis();
   Buzzer_Update();
+  
+  //Serial.println( millis()-t);
+
   //MODE_Update();
+  t = millis();
+  temp = KEYPAD_getPressedNewKey();
+  if ( temp != 0xff)
+  {
+    Serial.println(temp);
+  }
+  delay(50);
 }
 
 /**************************testing function*******************************/
-
-
-
-
-
-
 //void testKeyWithBuzzer(void) {
 //  uint8 key = KEYPAD_getPressedNewKey();
 //  if (key != 255) {
