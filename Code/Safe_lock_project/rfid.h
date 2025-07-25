@@ -1,19 +1,15 @@
 /******************************************************************************
- *
- * Module: RFID
- *
- * Description: Header file for the RFID driver
- *
- * Author: Ahmed Mohammed Abdelraheem
- *
+
+   Module: RFID
+
+   Description: Header file for the RFID driver
+
+   Author: Ahmed Mohammed Abdelraheem
+
  ******************************************************************************/
 
 #ifndef RFID_H_
 #define RFID_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
 #include <MFRC522.h>
 #include <Arduino.h>
 #include "common_types.h"
@@ -32,14 +28,7 @@ extern "C" {
 #define SYNC_HOUR_BYTE_NUM 10
 #define SYNC_MONTH_DAY_BYTE_NUM 11
 #define SYNC_YEAR_BYTE_NUM 12
-/*************************************************************/
-#define RST_PIN 9  // Configurable, see typical pin layout above
-#define SS_PIN 10  // Configurable, see typical pin layout above
-/**************************************************************/
-/************************RFID VARIABLES****************************/
-MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance.
-MFRC522::MIFARE_Key key;
-/***********************************************************/
+
 typedef struct
 {
   uint8_t Type;
@@ -60,7 +49,9 @@ typedef enum {
   CLIENT = 0x18,
   OTHER = 0xFF
 } tType;
-
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 void RFID_Init(void);
 void CARD_Init(void);
 void CardRead(void);

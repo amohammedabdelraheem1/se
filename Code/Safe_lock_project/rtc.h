@@ -1,14 +1,14 @@
 
 #ifndef RTC_H
 #define RTC_H
-
+#include <Arduino.h>
 // Preprocessor directive to ensure C++ compatibility
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 
 #include "common_types.h" // Include the common types header file
-#include <Arduino.h>
+
 
 void RTC_Init(void);
 void RTC_Set(tDate date);

@@ -1,11 +1,12 @@
 #ifndef PASSWORD_H_
 #define PASSWORD_H_
 
+#include <Arduino.h>
 #ifdef __cplusplus // To adapt to C and C++ disable mangling naming
 extern "C" {
 #endif   //__cplusplus
 //header code
-#include <Arduino.h>
+
 
 
 /************************    defines configurations    *****************************/

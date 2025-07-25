@@ -1,10 +1,11 @@
 #ifndef UNIT_H
 #define UNIT_H
+#include <Arduino.h>
 #ifdef __cplusplus
 extern "C"
 {
 #endif // __cplusplus
-#include <Arduino.h>
+
 #include "common_types.h"
 /**************************************************************/
 #define EEPROM_ROOM_BYTE_NUM 8

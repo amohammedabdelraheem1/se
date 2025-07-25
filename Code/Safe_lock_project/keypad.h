@@ -14,11 +14,10 @@
 #define KEYPAD_H_
 // Preprocessor directive to ensure C++ compatibility
 // Prevents name mangling when used in C++ projects
+#include <Arduino.h>
 #ifdef __cplusplus
 extern "C" {
 #endif   //__cplusplus
-
-#include <Arduino.h>
 
 /*******************************************************************************
  *                                Definitions                                  *
