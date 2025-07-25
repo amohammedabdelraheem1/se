@@ -1,11 +1,11 @@
 
 #ifndef COMMON_TYPES_H_
 #define COMMON_TYPES_H_
-
+#include <Arduino.h>// Include the standard types header file
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
-#include <Arduino.h>// Include the standard types header file
+
 typedef struct
 {
   uint8_t Room;
