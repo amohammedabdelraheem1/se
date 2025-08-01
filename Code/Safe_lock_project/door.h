@@ -39,6 +39,7 @@ static tDoor_state s_door_state = DOOR_OPEN;
 void Door_Init(void);       // Initialize door system
 void Door_Update(void);     // Update door state
 tDoor_state Door_GetState(void);  // Retrieve current door state
+tLock_state Door_Lock_GetState(void); // Lock the door
 void Door_Lock(void);
 void Door_Unlock(void);
 void DoorDisplay(void);

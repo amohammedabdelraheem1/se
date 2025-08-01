@@ -1,4 +1,3 @@
-
 #include "password.h"
 #include "keypad.h"
 #include "buzzer.h"
@@ -30,31 +29,25 @@ void setup() {
   MODE_Init();
   Door_Unlock();
   delay(3000);
+
+//  Password_Reset();
+//  Password_Display(eg_userPass);
+//  Password_Display(eg_savedPass);
+//  Password_Display(eg_masterPass);
+  
 }
 
 void loop() {
   uint8_t temp;
   uint32_t t ;
-  //  CARD_Update();
-  //  CardDataDisplay();
-  //  RTC_Update();
-  //  RealTimeDisplay();
-  //  CHECK_VALIDATION_Update();
-  //  Door_Update();
-  //  DoorDisplay();
-   // t = millis();
+//  t = millis();
+CARD_Update();
+  RTC_Update();
+  CHECK_VALIDATION_Update();
+   Door_Update();
   Buzzer_Update();
-  
-  //Serial.println( millis()-t);
+Mod
 
-  //MODE_Update();
-  t = millis();
-  temp = KEYPAD_getPressedNewKey();
-  if ( temp != 0xff)
-  {
-    Serial.println(temp);
-  }
-  delay(50);
 }
 
 /**************************testing function*******************************/

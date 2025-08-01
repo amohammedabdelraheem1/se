@@ -42,12 +42,18 @@ tCompare_state;
 extern uint8_t eg_savedPass[PASSWORD_SIZE];
 extern uint8_t eg_masterPass[PASSWORD_SIZE];
 extern uint8_t eg_userPass[PASSWORD_SIZE];
+/****************************************************************/
+
+static const uint8_t sg_defaultUserPass[PASSWORD_SIZE] = {0, 0, 0, 0};
+static const uint8_t sg_defaultMasterPass[PASSWORD_SIZE] = {1, 0, 1, 0};
 /************************ functions declaration *****************************/
 void Password_Init(void);
+void Password_Reset(void);
 void Password_Update(uint8_t* ptrTopass, uint8_t l_eeprom_first_byte) ;
 tPassword_state Password_getPass(uint8_t* ptrTopass);
 tPassword_state Password_setNew(uint8_t* ptrTopass);
 tCompare_state Password_compare( uint8_t* ptrTopass1, uint8_t* ptrTopass2);
+void Password_Display(uint8_t* ptrTopass);
 
 #ifdef __cplusplus
 }

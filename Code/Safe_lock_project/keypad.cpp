@@ -33,7 +33,6 @@ uint8_t KEYPAD_getPressedNewKey(void);
    @return The pressed key value, or NONPRESSED if no key is pressed
 */
 uint8_t KEYPAD_getPressedKey(void) {
-  Serial.print("done");
   // Set all row pins as input with pull-up resistors
   pinMode(KEYPAD_ROW1_PIN, INPUT_PULLUP);
   pinMode(KEYPAD_ROW2_PIN, INPUT_PULLUP);
@@ -60,6 +59,7 @@ uint8_t KEYPAD_getPressedKey(void) {
 
             return NONPRESSED;
           }
+          delay(2);
         }
         // Return the adjusted key number
         return KEYPAD_4x3_adjustKeyNumber(((i * KEYPAD_NUM_COLS) + j + 1));
@@ -99,39 +99,21 @@ static uint8_t KEYPAD_4x3_adjustKeyNumber(uint8_t button_number) {
 uint8_t KEYPAD_getPressedNewKey() {
 
   static uint8_t sl_curretKey = NONPRESSED, sl_prevKey = NONPRESSED, sl_newKeyFlag = 0;
-  static uint16_t sl_debouncingCounter = 0;
-    sl_curretKey = KEYPAD_getPressedKey();
-  Serial.print("\n sl_curretKey = ");
-  Serial.print("sl_curretKey");
-  Serial.print(sl_curretKey);
-  Serial.print(" sl_prevKey = ");
-  Serial.print(sl_prevKey);
-  Serial.print(" sl_newKeyFlag = ");
-  Serial.print(sl_newKeyFlag);
-  Serial.print(" sl_debouncingCounter = ");
-  Serial.print(sl_debouncingCounter);
+  sl_curretKey = KEYPAD_getPressedKey();
+ 
   if (sl_curretKey == sl_prevKey ) {
-    if (sl_debouncingCounter <= DEBOUNCING_TIMES) {
-      Serial.print("1->");
-      sl_debouncingCounter++;
-    }
-    if (sl_debouncingCounter >= DEBOUNCING_TIMES && sl_newKeyFlag == 0) {
-      Serial.print("2->");
+    if ( sl_newKeyFlag == 0) {
+     
       sl_newKeyFlag = 1;
-      sl_debouncingCounter = 0;
       if (sl_curretKey != NONPRESSED) {
         Buzzer_setTime(NEWKEYPRESSED_BUZZER);
       }
-      Serial.print("3->");
       return sl_curretKey;
     }
   } else {
-    Serial.print("  4->");
-    sl_debouncingCounter = 0;
+    
     sl_newKeyFlag = 0;
     sl_prevKey = sl_curretKey;
   }
-  Serial.print("  5->");
-
   return NONPRESSED;
 }

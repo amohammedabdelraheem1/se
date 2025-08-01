@@ -2,11 +2,12 @@
 #include "password.h"
 #include "keypad.h"
 #include <EEPROM.h>
-#include <Arduino.h>  
+#include <Arduino.h>
 
 uint8_t eg_savedPass[PASSWORD_SIZE];
 uint8_t eg_masterPass[PASSWORD_SIZE];
 uint8_t eg_userPass[PASSWORD_SIZE];
+
 
 // Initialize passwords by reading from EEPROM
 
@@ -17,7 +18,7 @@ uint8_t eg_userPass[PASSWORD_SIZE];
     eg_masterPass[i] = EEPROM.read(EEPROM_MASTER_PASS_FIRST_BYTR + i);
   }
   return;
-}
+  }
 */
 void Password_Init() {
   // Read saved client and master passwords from EEPROM
@@ -26,6 +27,14 @@ void Password_Init() {
     eg_masterPass[i] = EEPROM.read(EEPROM_MASTER_PASS_FIRST_BYTR + i);
   }
   return;
+}
+void Password_Reset(void)
+{  for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
+    EEPROM.write( EEPROM_CLIENT_PASS_FIRST_BYTR + i, sg_defaultUserPass[i]);
+    EEPROM.write( EEPROM_MASTER_PASS_FIRST_BYTR + i, sg_defaultMasterPass[i]);
+  }
+  Password_Init();
+  
 }
 // Update password in EEPROM
 void Password_Update(uint8_t* ptrTopass, uint8_t l_eeprom_first_byte) {
@@ -47,7 +56,7 @@ tPassword_state Password_getPass(uint8_t* ptrTopass) {
   for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
     do {
       l_pressedKey = KEYPAD_getPressedNewKey();
-       Buzzer_Update();
+      Buzzer_Update();
       // Check for timeout
       if ((millis() - l_entryTime) >= MAX_ENTRY_PASS_TIME) {
         Buzzer_setTime(INVALID_PASS_BUZZER);
@@ -89,13 +98,13 @@ tPassword_state Password_getPass(uint8_t* ptrTopass) {
 
 // Update password in EEPROM
 /*
-void Password_Update(uint8_t* ptrTopass, uint8_t l_eeprom_first_byte) {
+  void Password_Update(uint8_t* ptrTopass, uint8_t l_eeprom_first_byte) {
   // Write password to specified EEPROM location
   for (uint8_t i = 0; i < PASSWORD_SIZE; i++) {
     // EEPROM.write(l_eeprom_first_byte + i, ptrTopass[i]);
   }
   return;
-}
+  }
 */
 
 // Set a new password
@@ -125,7 +134,7 @@ tPassword_state Password_setNew(uint8_t* ptrTopass) {
     ptrTopass[i] = l_tempPass1[i];
   }
 
-Buzzer_setTime(VALID_PASS_BUZZER);
+  Buzzer_setTime(VALID_PASS_BUZZER);
   return VAILD_PASSWORD;
 }
 
@@ -138,4 +147,12 @@ tCompare_state Password_compare(uint8_t* ptrTopass1, uint8_t* ptrTopass2) {
     }
   }
   return VAILD_COMPARE;
+}
+void Password_Display(uint8_t* ptrTopass)
+{
+  for (uint8_t i = 0 ; i < PASSWORD_SIZE; i++) {
+    Serial.print(ptrTopass[i]);
+  }
+  Serial.print("\n");
+  return;
 }

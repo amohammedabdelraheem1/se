@@ -26,9 +26,8 @@ extern "C" {
 /* Keypad configurations for number of rows and columns */
 #define KEYPAD_NUM_COLS                   3 // Number of columns in the keypad
 #define KEYPAD_NUM_ROWS                   4 // Number of rows in the keypad
-#define KEYPAD_DEBOUNCING_NUM             3 // Number of times to debounce the keypad
-#define NONPRESSED                        0xFF // Value returned when no key is pressed
-#define DEBOUNCING_TIMES                  10 //max 65,535              
+#define KEYPAD_DEBOUNCING_NUM             5 // Number of times to debounce the keypad
+#define NONPRESSED                        0xFF // Value returned when no key is pressed             
 
 /* Keypad pin Configurations */
 #define KEYPAD_ROW1_PIN                   2  // PD2 (Pin 2)
